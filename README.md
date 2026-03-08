@@ -158,7 +158,7 @@
 
 ```bash
 # 1️⃣ 克隆项目
-git clone https://github.com/your-username/RAG_PROJECT.git
+git clone https://github.com/你的GitHub用户名/RAG_PROJECT.git
 cd RAG_PROJECT
 
 # 2️⃣ 安装依赖
