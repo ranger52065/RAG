@@ -167,6 +167,7 @@ pip install -r requirements.txt
 # 3️⃣ 创建 .env 配置文件
 cat > .env << EOF
 OPENAI_API_KEY=your_openai_api_key
+OPENAI_BASE_URL=https://api.openai.com/v1
 DEEPSEEK_API_KEY=your_deepseek_api_key
 TAVILY_API_KEY=your_tavily_api_key
 EOF
@@ -192,11 +193,13 @@ python documents/write_milvus.py
 ### 🎮 运行系统
 
 ```bash
-# 方式一：LangGraph 工作流（推荐）⭐
-python graph2/graph_2.py
+# 方式一：主入口（推荐）⭐
+python main.py                        # 交互式问答模式
+python main.py --mode graph           # LangGraph 工作流模式
 
-# 方式二：Agent 对话模式
-python agent/rag_agent.py
+# 方式二：直接运行模块
+python graph2/graph_2.py              # LangGraph 工作流
+python agent/rag_agent.py             # Agent 对话模式
 ```
 
 ---
@@ -343,26 +346,29 @@ for doc in docs:
 在 `.env` 文件中配置：
 
 ```env
-# OpenAI API（必需）
+# LLM API 配置（必需）
 OPENAI_API_KEY=sk-xxx
+OPENAI_BASE_URL=https://api.openai.com/v1    # 或其他兼容 API 地址
 
 # DeepSeek API（可选，用于切换模型）
 DEEPSEEK_API_KEY=sk-xxx
 
 # Tavily Web搜索（必需）
 TAVILY_API_KEY=tvly-xxx
+
+# Milvus 配置（可选）
+MILVUS_URI=http://localhost:19530
+COLLECTION_NAME=t_collection01
+MD_DATA_DIR=./datas/md
 ```
 
 ### 🗄️ Milvus 配置
 
-修改 `utils/env_utils.py`：
+通过环境变量配置（在 `.env` 文件中）：
 
-```python
-# Milvus 连接地址
-MILVUS_URI = 'http://localhost:19530'
-
-# Collection 名称
-COLLECTION_NAME = 'knowledge_base'
+```env
+MILVUS_URI=http://localhost:19530
+COLLECTION_NAME=t_collection01
 ```
 
 ### 🤖 LLM 切换
@@ -370,14 +376,17 @@ COLLECTION_NAME = 'knowledge_base'
 修改 `llm_models/all_llm.py`：
 
 ```python
-# 使用 OpenAI GPT-4o-mini
+# 使用兼容 OpenAI API 的模型
 llm = ChatOpenAI(
-    model='gpt-4o-mini',
-    api_key=OPENAI_API_KEY
+    temperature=0,
+    model='qwen3.5-flash',
+    api_key=OPENAI_API_KEY,
+    base_url=OPENAI_BASE_URL
 )
 
-# 或使用 DeepSeek（性价比更高）
+# 或使用 DeepSeek
 llm = ChatOpenAI(
+    temperature=0,
     model='deepseek-chat',
     api_key=DEEPSEEK_API_KEY,
     base_url='https://api.deepseek.com'
